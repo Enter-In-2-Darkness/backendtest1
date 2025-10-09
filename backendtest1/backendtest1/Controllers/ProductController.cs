@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.RegularExpressions;
 using backendtest1.Models;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace backendtest1.Controllers
@@ -48,21 +49,23 @@ namespace backendtest1.Controllers
         public ActionResult<ApiResponse<ProductModel>> CreateProduct([FromBody] ProductValidateModel model)
         {
             if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new ApiResponse<ProductModel>
-                {
-                    Success = false,
-                    Message = string.Join("; ", errors),
-                    Data = null
-                });
-            }
+                return BadRequest(ModelState);
+
+            // ตรวจสอบรูปแบบรหัสสินค้า
+            if(!IsValidProductCode(model.NumberCode))
+                return BadRequest(new { message = "format incorrect" });
+
+            // ตรวจสอบรหัสซ้ำ
+            if (_productModel.Any(p => p.NumberCode == model.NumberCode))
+                return Conflict(new { message = "Duplicate product code" });
+
             var newProduct = new ProductModel
             {
                 Id = _numberId++,
                 NumberCode = model.NumberCode,
                 CreateAt = DateTime.UtcNow
             };
+
             _productModel.Add(newProduct);
             return CreatedAtAction(nameof(GetProductById), new { id = newProduct.Id }, new ApiResponse<ProductModel>
             {
@@ -94,5 +97,18 @@ namespace backendtest1.Controllers
             });
         }
 
+
+        // Validation helper
+        private bool IsValidProductCode(string code)
+        {
+            // Check format: xxxxx-xxxxx-xxxxx-xxxxx-xxxxx-xxxxx
+            var regex = new Regex(@"^[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$");
+            if (!regex.IsMatch(code))
+                return false;
+
+            // Check total length without dashes = 30
+            var cleanCode = code.Replace("-", "");
+            return cleanCode.Length == 30;
+        }
     }
 }

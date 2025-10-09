@@ -13,7 +13,7 @@ namespace backendtest1.Models
     public class ProductValidateModel
     {
         [Required(ErrorMessage = "Please input your Number Code")]
-        [RegularExpression(@"^[0-9A-Z]{5}-[0-9A-Z]{5}-[0-9A-Z]{5}-[0-9A-Z]{5}-[0-9A-Z]{5}-[0-9A-Z]{5}$", ErrorMessage = "Number Code must be in the format XXXXX-XXXXX")]
+        [RegularExpression(@"^[0-9A-Z]{5}-[0-9A-Z]{5}-[0-9A-Z]{5}-[0-9A-Z]{5}-[0-9A-Z]{5}-[0-9A-Z]{5}$", ErrorMessage = "Number Code must be in the format XXXXX-XXXXX and limit 30 digits")]
 
         public string NumberCode { get; set; } = string.Empty;
     }

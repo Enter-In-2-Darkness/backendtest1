@@ -32,11 +32,8 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseForwardedHeaders();
 
 app.UseCors("AllowAll");
@@ -46,5 +43,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Redirect root to Swagger UI to avoid 404 on "/"
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.Run();

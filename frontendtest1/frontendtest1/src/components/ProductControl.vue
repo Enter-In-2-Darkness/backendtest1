@@ -50,7 +50,7 @@
               <button @click="showQR(product.numberCode)" class="btn-qr">
                 📱 QR
               </button>
-              <button @click="confirmDelete(index, product.id)" class="btn-delete">
+              <button @click="confirmDelete(index, product.id, product.numberCode)" class="btn-delete">
                 🗑️ ลบ
               </button>
             </td>
@@ -84,7 +84,7 @@
     <div v-if="showConfirmDialog" class="modal" @click="cancelDelete">
       <div class="modal-content small" @click.stop>
         <h3>ยืนยันการลบ</h3>
-        <p>คุณต้องการลบรหัสสินค้านี้ใช่หรือไม่?</p>
+        <p>คุณต้องการลบรหัสสินค้า <strong class="code-cell">{{ deleteCode }}</strong> นี้ใช่หรือไม่?</p>
         <div class="modal-actions">
           <button @click="cancelDelete" class="btn-cancel">ยกเลิก</button>
           <button @click="handleDelete" class="btn-confirm-delete">ลบ</button>
@@ -109,7 +109,8 @@ export default {
       selectedCode: '',
       showConfirmDialog: false,
       deleteIndex: null,
-      deleteId: null
+      deleteId: null,
+      deleteCode: null
     };
   },
   async mounted() {
@@ -184,9 +185,10 @@ export default {
     closeQRModal() {
       this.showQRModal = false;
     },
-    confirmDelete(index, id) {
+    confirmDelete(index, id, code) {
       this.deleteIndex = index;
       this.deleteId = id;
+      this.deleteCode = code;
       this.showConfirmDialog = true;
     },
     async handleDelete() {
@@ -197,6 +199,7 @@ export default {
         this.showConfirmDialog = false;
         this.deleteIndex = null;
         this.deleteId = null;
+        this.deleteCode = null;
       } catch (error) {
         console.error('Error deleting product:', error);
         this.error = 'can not delete data';
@@ -208,6 +211,7 @@ export default {
       this.showConfirmDialog = false;
       this.deleteIndex = null;
       this.deleteId = null;
+      this.deleteCode = null;
     },
     formatDate(date) {
       return new Date(date).toLocaleString('th-TH');
